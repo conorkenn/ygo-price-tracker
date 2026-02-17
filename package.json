@@ -9,6 +9,7 @@
     "config:remove": "node dist/config.js remove",
     "config:list": "node dist/config.js list",
     "prices:list": "node dist/prices.js list",
+    "interactive": "node dist/interactive.js",
     "build": "tsc",
     "test": "jest",
     "test:coverage": "jest --coverage"
@@ -31,6 +32,7 @@
   },
   "dependencies": {
     "chalk": "^5.6.2",
+    "inquirer": "^13.2.5",
     "ora": "^9.3.0",
     "table": "^6.9.0"
   }
