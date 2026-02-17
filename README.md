@@ -1,6 +1,18 @@
-# YGO Price Tracker
+# YGO Price Tracker ⚠️ ON HOLD
+
+> ⚠️ **Status:** Waiting for eBay API approval. Project currently uses mock data.
 
 Track Yu-Gi-Oh! card prices on eBay and get Discord alerts when prices drop!
+
+## Current Status
+
+| Component | Status |
+|-----------|--------|
+| Card search | ✅ Working (YGO Pro Deck API) |
+| Watchlist management | ✅ Working |
+| Price history | ✅ Working |
+| Discord alerts | ✅ Code ready |
+| **eBay API** | 🔜 Waiting for approval |
 
 ## Setup
 
@@ -30,7 +42,12 @@ Edit `config.json` to add cards to your watchlist:
 
 ## Usage
 
-### Check prices
+### Interactive mode
+```bash
+npm run interactive
+```
+
+### Check prices (currently uses mock data)
 ```bash
 npm run check
 ```
@@ -47,6 +64,11 @@ npm run config:list
 npm run prices:list
 ```
 
+### Card search
+```bash
+npm run search "Card Name"
+```
+
 ## Discord Alerts
 
 Set the Discord webhook URL:
@@ -61,9 +83,38 @@ Add to crontab to run automatically:
 0 */6 * * * cd /path/to/ygo-price-tracker && npm run check
 ```
 
-## eBay API (Coming Soon)
+## eBay API Integration
 
-Currently uses mock data. When eBay API keys are ready:
+**Currently on hold** - waiting for eBay API approval.
+
+Once approved:
 1. Sign up at developers.ebay.com
 2. Get your API credentials
 3. Replace `src/ebay.ts` with real API calls
+
+## Features
+
+- 🔍 Card search with spelling correction (finds "harpy" → "harpie")
+- 📅 Set year extraction (knows Metal Raiders is 2002!)
+- 🎯 Deal detection when prices drop below your threshold
+- 📊 Price history tracking
+- 🔔 Discord notifications
+- 🎨 Pretty CLI output with colors
+
+## Demo
+
+```
+🔍 Searching for "harpy lady"...
+   📝 Corrected: "harpy lady" → "harpie lady"
+Found 10 cards:
+
+1. Cyber Harpie Lady [2009, 2020]
+   Type: Effect Monster | Est. Price: $0.19 | Rarities: Ultra Rare
+
+2. Harpie Lady [2002, 2009]
+   Type: Normal Monster | Est. Price: $0.02 | Rarities: Common
+```
+
+---
+
+*Project paused until eBay API access is granted.*
