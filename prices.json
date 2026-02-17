@@ -1,0 +1,17 @@
+{
+  "Dark Magician Girl": {
+    "current": 80,
+    "history": [
+      {
+        "date": "2026-02-17",
+        "price": 85,
+        "listings": 10
+      },
+      {
+        "date": "2026-02-17",
+        "price": 80,
+        "listings": 8
+      }
+    ]
+  }
+}
