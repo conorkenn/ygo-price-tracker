@@ -1,6 +1,7 @@
 import { loadConfig, Config } from './config';
 import { loadPrices, savePrices, updatePrice, PriceHistory } from './prices';
 import { searchEbay, filterPsa10Only, getLowestPriceListing, EbaySearchResult, EbayListing } from './ebay';
+import { sendDiscordAlert } from './discord';
 
 export interface DealAlert {
   card: string;
@@ -92,6 +93,9 @@ export async function main(): Promise<void> {
       console.log(formatAlert(alert));
       console.log('\n' + '='.repeat(50) + '\n');
     });
+    
+    // Send Discord alerts
+    await sendDiscordAlert(alerts);
   } else {
     console.log('No deals found today. Keep watching! 👀');
   }
