@@ -1,6 +1,6 @@
 {
   "Dark Magician Girl": {
-    "current": 80,
+    "current": 35,
     "history": [
       {
         "date": "2026-02-17",
@@ -11,6 +11,21 @@
         "date": "2026-02-17",
         "price": 80,
         "listings": 8
+      },
+      {
+        "date": "2026-02-17",
+        "price": 35,
+        "listings": 4
+      }
+    ]
+  },
+  "Blue-Eyes White Dragon": {
+    "current": 150,
+    "history": [
+      {
+        "date": "2026-02-17",
+        "price": 150,
+        "listings": 2
       }
     ]
   }
