@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import chalk from 'chalk';
 
 export interface WatchItem {
   card: string;
@@ -31,7 +32,7 @@ export function addToWatchlist(card: string, maxPrice: number, filePath?: string
   const config = loadConfig(filePath);
   config.watchlist.push({ card, maxPrice });
   saveConfig(config, filePath);
-  console.log(`Added "${card}" with max price $${maxPrice}`);
+  console.log(chalk.green(`✓ Added "${card}" with max price $${maxPrice}`));
 }
 
 export function removeFromWatchlist(card: string, filePath?: string): void {
@@ -40,21 +41,34 @@ export function removeFromWatchlist(card: string, filePath?: string): void {
     item.card.toLowerCase() === card.toLowerCase()
   );
   if (index === -1) {
-    console.log(`"${card}" not found in watchlist`);
+    console.log(chalk.red(`✗ "${card}" not found in watchlist`));
     return;
   }
   const removed = config.watchlist.splice(index, 1)[0];
   saveConfig(config, filePath);
-  console.log(`Removed "${removed.card}" from watchlist`);
+  console.log(chalk.green(`✓ Removed "${removed.card}" from watchlist`));
 }
 
 export function listWatchlist(filePath?: string): void {
   const config = loadConfig(filePath);
-  console.log('\n📋 Watchlist:');
+  
+  console.log(chalk.cyan('\n📋 ') + chalk.bold('Your Watchlist'));
+  console.log(chalk.gray('─'.repeat(40)));
+  
+  if (config.watchlist.length === 0) {
+    console.log(chalk.yellow('  No cards in watchlist. Add some with:'));
+    console.log(chalk.gray('  npm run config:add "Card Name" 100\n'));
+    return;
+  }
+  
   config.watchlist.forEach((item, i) => {
-    console.log(`  ${i + 1}. ${item.card} - Max: $${item.maxPrice}`);
+    const number = chalk.white(String(i + 1).padStart(2, ' '));
+    const card = chalk.white(item.card);
+    const price = chalk.yellow(`$${item.maxPrice}`);
+    console.log(`  ${number}. ${card} → ${price}`);
   });
-  console.log('');
+  
+  console.log(chalk.gray('─'.repeat(40)) + '\n');
 }
 
 // CLI

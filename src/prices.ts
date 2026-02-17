@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import chalk from 'chalk';
 
 export interface PriceEntry {
   date: string;
@@ -59,13 +60,49 @@ export function getCurrentPrice(card: string, filePath?: string): number | null 
   return prices[card]?.current || null;
 }
 
-export function listPrices(): void {
-  const prices = loadPrices();
-  console.log('\n💰 Price History:');
-  for (const [card, data] of Object.entries(prices)) {
-    console.log(`  ${card}: $${data.current} (${data.history.length} entries)`);
+export function listPrices(filePath?: string): void {
+  const prices = loadPrices(filePath);
+  const cards = Object.entries(prices);
+  
+  console.log(chalk.cyan('\n💰 ') + chalk.bold('Price History'));
+  console.log(chalk.gray('─'.repeat(50)));
+  
+  if (cards.length === 0) {
+    console.log(chalk.yellow('  No price data yet. Run a price check first!\n'));
+    return;
   }
-  console.log('');
+  
+  cards.forEach(([card, data]) => {
+    const cardName = chalk.white(card);
+    const current = chalk.green(`$${data.current}`);
+    const entries = chalk.gray(`(${data.history.length} entries)`);
+    console.log(`  ${cardName}: ${current} ${entries}`);
+  });
+  
+  console.log(chalk.gray('─'.repeat(50)) + '\n');
+}
+
+export function showPriceHistory(card: string, filePath?: string): void {
+  const prices = loadPrices(filePath);
+  const data = prices[card];
+  
+  console.log(chalk.cyan('\n📜 ') + chalk.bold(`${card} Price History`));
+  console.log(chalk.gray('─'.repeat(40)));
+  
+  if (!data || data.history.length === 0) {
+    console.log(chalk.yellow('  No history for this card.\n'));
+    return;
+  }
+  
+  data.history.forEach((entry, i) => {
+    const date = chalk.gray(entry.date);
+    const price = chalk.green(`$${entry.price}`);
+    const listings = chalk.cyan(`(${entry.listings} listings)`);
+    const arrow = i === 0 ? '→' : ' ';
+    console.log(`  ${arrow} ${date}: ${price} ${listings}`);
+  });
+  
+  console.log(chalk.gray('─'.repeat(40)) + '\n');
 }
 
 // CLI
@@ -73,10 +110,7 @@ const args = process.argv.slice(2);
 if (args[0] === 'update' && args[1] && args[2]) {
   updatePrice(args[1], parseFloat(args[2]), parseInt(args[3]) || 1);
 } else if (args[0] === 'history' && args[1]) {
-  const history = getPriceHistory(args[1]);
-  console.log(`\n📜 ${args[1]} history:`);
-  history.forEach(h => console.log(`  ${h.date}: $${h.price} (${h.listings} listings)`));
-  console.log('');
+  showPriceHistory(args[1]);
 } else if (args[0] === 'list') {
   listPrices();
 }

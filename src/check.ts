@@ -2,6 +2,8 @@ import { loadConfig, Config } from './config';
 import { loadPrices, savePrices, updatePrice, PriceHistory } from './prices';
 import { searchEbay, filterPsa10Only, getLowestPriceListing, EbaySearchResult, EbayListing } from './ebay';
 import { sendDiscordAlert } from './discord';
+import chalk from 'chalk';
+import ora from 'ora';
 
 export interface DealAlert {
   card: string;
@@ -17,10 +19,10 @@ export async function checkPrices(): Promise<DealAlert[]> {
   const prices = loadPrices();
   const alerts: DealAlert[] = [];
   
-  console.log('🔍 Checking prices...\n');
+  console.log(chalk.cyan('\n🔍 ') + chalk.bold('Checking Prices...\n'));
   
   for (const item of config.watchlist) {
-    console.log(`Checking: ${item.card} (threshold: $${item.maxPrice})`);
+    const spinner = ora(`Checking: ${item.card}`).start();
     
     try {
       const result = await searchEbay(item.card);
@@ -28,7 +30,7 @@ export async function checkPrices(): Promise<DealAlert[]> {
       const lowest = getLowestPriceListing(filtered);
       
       if (!lowest) {
-        console.log(`  No listings found for ${item.card}`);
+        spinner.warn(`No listings for ${item.card}`);
         continue;
       }
       
@@ -50,15 +52,13 @@ export async function checkPrices(): Promise<DealAlert[]> {
           isNewLow,
         });
         
-        console.log(`  🎯 DEAL FOUND: $${lowest.price} (was $${previousPrice})`);
+        spinner.succeed(`${item.card}: $${lowest.price} 🎯 DEAL!`);
       } else {
-        console.log(`  Price: $${lowest.price} (threshold: $${item.maxPrice})`);
+        spinner.info(`${item.card}: $${lowest.price}`);
       }
     } catch (error) {
-      console.log(`  Error checking ${item.card}:`, error);
+      spinner.fail(`Error checking ${item.card}`);
     }
-    
-    console.log('');
   }
   
   return alerts;
@@ -88,16 +88,28 @@ export async function main(): Promise<void> {
   const alerts = await checkPrices();
   
   if (alerts.length > 0) {
-    console.log('\n📣 DEALS FOUND:\n');
+    console.log(chalk.cyan('\n📣 ') + chalk.bold('DEALS FOUND!') + '\n');
+    
     alerts.forEach(alert => {
-      console.log(formatAlert(alert));
-      console.log('\n' + '='.repeat(50) + '\n');
+      const savings = alert.isNewLow 
+        ? chalk.green(`📉 New low! -$${alert.savings.toFixed(2)}`)
+        : chalk.yellow(`$${alert.savings.toFixed(2)} under threshold`);
+      
+      console.log(chalk.white('─'.repeat(50)));
+      console.log(chalk.bold(`🎯 ${alert.card}`));
+      console.log(`  Price: ${chalk.green(`$${alert.currentPrice}`)} / Threshold: $${alert.threshold}`);
+      console.log(`  Savings: ${savings}`);
+      console.log(`  ${chalk.cyan('→')} ${alert.listing.title}`);
+      console.log(`  Seller: ${alert.listing.seller} ${alert.listing.authenticityGuarantee ? '✅' : '⚠️'}`);
+      console.log('');
     });
+    
+    console.log(chalk.white('─'.repeat(50)));
     
     // Send Discord alerts
     await sendDiscordAlert(alerts);
   } else {
-    console.log('No deals found today. Keep watching! 👀');
+    console.log(chalk.yellow('\n👀 No deals found today. Keep watching!\n'));
   }
 }
 
