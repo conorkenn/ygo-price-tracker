@@ -16,20 +16,22 @@ export interface PriceHistory {
 
 const PRICES_PATH = path.join(__dirname, '..', 'prices.json');
 
-export function loadPrices(): PriceHistory {
-  if (!fs.existsSync(PRICES_PATH)) {
+export function loadPrices(filePath?: string): PriceHistory {
+  const targetPath = filePath || PRICES_PATH;
+  if (!fs.existsSync(targetPath)) {
     return {};
   }
-  const data = fs.readFileSync(PRICES_PATH, 'utf-8');
+  const data = fs.readFileSync(targetPath, 'utf-8');
   return JSON.parse(data);
 }
 
-export function savePrices(prices: PriceHistory): void {
-  fs.writeFileSync(PRICES_PATH, JSON.stringify(prices, null, 2));
+export function savePrices(prices: PriceHistory, filePath?: string): void {
+  const targetPath = filePath || PRICES_PATH;
+  fs.writeFileSync(targetPath, JSON.stringify(prices, null, 2));
 }
 
-export function updatePrice(card: string, price: number, listings: number): void {
-  const prices = loadPrices();
+export function updatePrice(card: string, price: number, listings: number, filePath?: string): void {
+  const prices = loadPrices(filePath);
   const today = new Date().toISOString().split('T')[0];
   
   if (!prices[card]) {
@@ -44,17 +46,16 @@ export function updatePrice(card: string, price: number, listings: number): void
     prices[card].history = prices[card].history.slice(-30);
   }
   
-  savePrices(prices);
-  console.log(`Updated ${card}: $${price} (${listings} listings)`);
+  savePrices(prices, filePath);
 }
 
-export function getPriceHistory(card: string): PriceEntry[] {
-  const prices = loadPrices();
+export function getPriceHistory(card: string, filePath?: string): PriceEntry[] {
+  const prices = loadPrices(filePath);
   return prices[card]?.history || [];
 }
 
-export function getCurrentPrice(card: string): number | null {
-  const prices = loadPrices();
+export function getCurrentPrice(card: string, filePath?: string): number | null {
+  const prices = loadPrices(filePath);
   return prices[card]?.current || null;
 }
 

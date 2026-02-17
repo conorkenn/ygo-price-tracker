@@ -7,3 +7,4 @@ dist/
 # User-specific config (copy config.example.json to config.json)
 config.json
 prices.json
+config.json
