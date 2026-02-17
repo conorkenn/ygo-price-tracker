@@ -1,2 +1,9 @@
 node_modules/
 dist/
+.env
+.DS_Store
+*.log
+
+# User-specific config (copy config.example.json to config.json)
+config.json
+prices.json

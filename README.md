@@ -7,6 +7,9 @@ Track Yu-Gi-Oh! card prices on eBay and get Discord alerts when prices drop!
 ```bash
 npm install
 npm run build
+
+# Copy example config and edit with your own watchlist
+cp config.example.json config.json
 ```
 
 ## Configuration
@@ -22,6 +25,8 @@ Edit `config.json` to add cards to your watchlist:
   "checkInterval": "6h"
 }
 ```
+
+**Note:** `config.json` and `prices.json` are gitignored - your watchlist stays private!
 
 ## Usage
 
