@@ -1,0 +1,13 @@
+{
+  "watchlist": [
+    {
+      "card": "Dark Magician Girl",
+      "maxPrice": 100
+    },
+    {
+      "card": "Blue-Eyes White Dragon",
+      "maxPrice": 150
+    }
+  ],
+  "checkInterval": "6h"
+}
