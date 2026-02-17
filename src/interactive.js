@@ -1,7 +1,8 @@
 const inquirer = require('inquirer');
-const { loadConfig, addToWatchlist, removeFromWatchlist } = require('./config');
+const { loadConfig, saveConfig, addToWatchlist, removeFromWatchlist } = require('./config');
 const { loadPrices, showPriceHistory, listPrices } = require('./prices');
 const { checkPrices } = require('./check');
+const { searchWithPrices, formatCardForDisplay, formatCardDetail } = require('./ygo-api');
 
 async function showMainMenu() {
   const { action } = await inquirer.prompt([
@@ -11,6 +12,7 @@ async function showMainMenu() {
       message: '🎯 YGO Price Tracker',
       loop: false,
       choices: [
+        '🔍 Search Cards',
         '📋 View Watchlist',
         '➕ Add Card to Watchlist',
         '➖ Remove Card from Watchlist',
@@ -23,6 +25,9 @@ async function showMainMenu() {
   ]);
   
   switch (action) {
+    case '🔍 Search Cards':
+      await searchCards();
+      break;
     case '📋 View Watchlist':
       await viewWatchlist();
       break;
@@ -45,6 +50,82 @@ async function showMainMenu() {
       console.log('\n👋 Bye!\n');
       process.exit(0);
   }
+}
+
+async function searchCards() {
+  console.log('\n🔍 Search Cards\n');
+  
+  const { query } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'query',
+      message: 'Card name:',
+      validate: input => input.trim().length > 0 || 'Please enter a card name'
+    }
+  ]);
+  
+  console.log('\n🔍 Searching...\n');
+  
+  const results = await searchWithPrices(query.trim());
+  
+  if (results.length === 0) {
+    console.log('No cards found.\n');
+    await backToMenu();
+    return;
+  }
+  
+  // Format results for display
+  const choices = results.map((result, i) => ({
+    name: formatCardForDisplay(result, i),
+    value: i
+  }));
+  choices.push({ name: '← Go Back', value: -1 });
+  
+  const { index } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'index',
+      message: 'Select a card:',
+      choices,
+      loop: false
+    }
+  ]);
+  
+  if (index === -1) {
+    await showMainMenu();
+    return;
+  }
+  
+  const selected = results[index];
+  
+  // Show card details
+  console.log('\n' + formatCardDetail(selected));
+  
+  // Ask to add to watchlist
+  const { addToWatchlist: shouldAdd } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'addToWatchlist',
+      message: 'Add to watchlist?',
+      default: true
+    }
+  ]);
+  
+  if (shouldAdd) {
+    const { maxPrice } = await inquirer.prompt([
+      {
+        type: 'number',
+        name: 'maxPrice',
+        message: 'Max price to pay ($):',
+        default: 100
+      }
+    ]);
+    
+    addToWatchlist(selected.card.name, maxPrice);
+    console.log(`\n✅ Added "${selected.card.name}" to watchlist!`);
+  }
+  
+  await backToMenu();
 }
 
 async function viewWatchlist() {
